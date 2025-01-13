@@ -13,7 +13,11 @@ const App = () => {
       const devices = await UsbModule.getConnectedUsbDevices();
       setUsbDevices(devices);
     } catch (error) {
-      console.error(error.message);
+      if (error instanceof Error) {
+        console.error(error.message);
+      } else {
+        console.error(error);
+      }
     }
   };
 
@@ -22,15 +26,15 @@ const App = () => {
       const result = await UsbModule.startFingerprintScan();
       setScanResult(result);
     } catch (error) {
-      console.error(error.message);
+      console.error(error?.message);
     }
   };
 
   return (
     <View>
-      <Button title="List USB Devices" onPress={fetchUsbDevices} />
+      <Button title="USB Devices" onPress={fetchUsbDevices} />
       <Text>{usbDevices}</Text>
-      <Button title="Start Scan" onPress={startScan} />
+      <Button title="Iniciar Scan" onPress={startScan} />
       <Text>{scanResult}</Text>
     </View>
   );
