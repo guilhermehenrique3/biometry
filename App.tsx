@@ -1,112 +1,90 @@
-import React, {useState, useEffect} from 'react';
-import {
-  View,
-  Text,
-  Button,
-  Image,
-  StyleSheet,
-  ScrollView,
-  Alert,
-  NativeModules,
-} from 'react-native';
+import React, {useState} from 'react';
+import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import {NativeModules} from 'react-native';
+
+const {FingerprintModule} = NativeModules;
 
 const App = () => {
-  const {FingerPrintUareu} = NativeModules;
+  const [status, setStatus] = useState<string>('Aguardando ação...');
 
-  const [encodedImage, setEncodedImage] = useState(null);
-  const [wsqBase64, setWsqBase64] = useState(null);
-  const [usbDevices, setUsbDevices] = useState('');
-
-  const startFingerprintScan = async () => {
+  const handleInitialize = async () => {
     try {
-      const result = await FingerPrintUareu.startScan();
-      setEncodedImage(result.encoded);
+      const response = await FingerprintModule.initialize();
+      setStatus(response);
     } catch (error) {
-      Alert.alert('Erro', error.message || 'Falha ao iniciar o scan');
+      setStatus('Erro ao inicializar: ' + error.message);
     }
   };
 
-  const getConnectedUsbDevices = async () => {
+  const handleCapture = async () => {
     try {
-      const devices = await FingerPrintUareu.getConnectedUsbDevices();
-      setUsbDevices(devices);
+      const response = await FingerprintModule.captureFingerprint();
+      setStatus(response);
     } catch (error) {
-      Alert.alert('Erro', error.message || 'Falha ao obter dispositivos USB');
+      setStatus('Erro ao capturar digital: ' + error.message);
     }
   };
 
-  useEffect(() => {
-    getConnectedUsbDevices();
-  }, []);
+  const handleClose = async () => {
+    try {
+      const response = await FingerprintModule.closeDevice();
+      setStatus(response);
+    } catch (error) {
+      setStatus('Erro ao fechar dispositivo: ' + error.message);
+    }
+  };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Captura de Digital</Text>
-      <Button title="Iniciar Scan" onPress={startFingerprintScan} />
-      <Button title="pegar dispositivos" onPress={getConnectedUsbDevices} />
+    <View style={styles.container}>
+      <Text style={styles.title}>Leitor Biométrico</Text>
+      <Text style={styles.status}>{status}</Text>
 
-      {encodedImage && (
-        <View style={styles.resultContainer}>
-          <Text style={styles.subtitle}>Imagem Capturada (Base64):</Text>
-          <Image
-            source={{uri: `data:image/png;base64,${encodedImage}`}}
-            style={styles.image}
-            resizeMode="contain"
-          />
-        </View>
-      )}
+      <TouchableOpacity style={styles.button} onPress={handleInitialize}>
+        <Text style={styles.buttonText}>Inicializar SDK</Text>
+      </TouchableOpacity>
 
-      {wsqBase64 && (
-        <View style={styles.resultContainer}>
-          <Text style={styles.subtitle}>Codificação WSQ (Base64):</Text>
-          <Text style={styles.base64Text}>{wsqBase64}</Text>
-        </View>
-      )}
+      <TouchableOpacity style={styles.button} onPress={handleCapture}>
+        <Text style={styles.buttonText}>Capturar Digital</Text>
+      </TouchableOpacity>
 
-      {usbDevices && (
-        <View style={styles.resultContainer}>
-          <Text style={styles.subtitle}>Dispositivos USB Conectados:</Text>
-          <Text style={styles.base64Text}>{usbDevices}</Text>
-        </View>
-      )}
-    </ScrollView>
+      <TouchableOpacity style={styles.button} onPress={handleClose}>
+        <Text style={styles.buttonText}>Fechar Dispositivo</Text>
+      </TouchableOpacity>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
-    backgroundColor: '#f4f4f4',
+    backgroundColor: '#f5f5f5',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
   },
-  resultContainer: {
-    marginTop: 20,
-    width: '100%',
+  status: {
+    fontSize: 16,
+    marginBottom: 20,
+    color: '#333',
+    textAlign: 'center',
+    paddingHorizontal: 20,
+  },
+  button: {
+    backgroundColor: '#007bff',
+    padding: 15,
+    marginVertical: 10,
+    borderRadius: 10,
+    width: '80%',
     alignItems: 'center',
   },
-  subtitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 10,
-  },
-  image: {
-    width: 200,
-    height: 200,
-    borderWidth: 1,
-    borderColor: '#ccc',
-  },
-  base64Text: {
-    fontSize: 12,
-    color: '#555',
-    marginTop: 10,
-    textAlign: 'center',
-    paddingHorizontal: 10,
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 

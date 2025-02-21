@@ -11,7 +11,6 @@ import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.defaults.DefaultReactNativeHost
 import com.facebook.react.soloader.OpenSourceMergedSoMapping
 import com.facebook.soloader.SoLoader
-import com.reactnativefingerprintuareu.FingerprintUareuPackage
 
 class MainApplication : Application(), ReactApplication {
 
@@ -19,8 +18,7 @@ class MainApplication : Application(), ReactApplication {
       object : DefaultReactNativeHost(this) {
         override fun getPackages(): List<ReactPackage> {
             val packages = PackageList(this).packages.toMutableList()
-            // Adiciona o FingerprintUareuPackage manualmente
-            packages.add(FingerprintUareuPackage())
+            packages.add(FingerprintPackage())
             return packages
         }
 
