@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import {NativeModules} from 'react-native';
 
@@ -25,15 +25,6 @@ const App = () => {
     }
   };
 
-  const handleClose = async () => {
-    try {
-      const response = await FingerprintModule.closeDevice();
-      setStatus(response);
-    } catch (error) {
-      setStatus('Erro ao fechar dispositivo: ' + error.message);
-    }
-  };
-
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Leitor Biométrico</Text>
@@ -45,10 +36,6 @@ const App = () => {
 
       <TouchableOpacity style={styles.button} onPress={handleCapture}>
         <Text style={styles.buttonText}>Capturar Digital</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.button} onPress={handleClose}>
-        <Text style={styles.buttonText}>Fechar Dispositivo</Text>
       </TouchableOpacity>
     </View>
   );

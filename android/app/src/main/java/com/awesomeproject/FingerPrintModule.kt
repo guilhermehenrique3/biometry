@@ -9,40 +9,37 @@ import SecuGen.FDxSDKPro.SGFDxDeviceName
 class FingerprintModule(reactContext: ReactApplicationContext) :
     ReactContextBaseJavaModule(reactContext) {
 
-    private val sgfplib: JSGFPLib = JSGFPLib(reactContext.getSystemService(Context.USB_SERVICE) as UsbManager)
+    private val sgfplib: JSGFPLib = JSGFPLib(reactContext,null)
 
-    override fun getName(): String {
-        return "FingerprintModule"
-    }
+    override fun getName(): String = "FingerprintModule"
 
     @ReactMethod
     fun initialize(promise: Promise) {
-        val error = sgfplib.Init(SGFDxDeviceName.SG_DEV_AUTO)
-        if (error == 0L) {
-            promise.resolve("SDK Inicializado com sucesso")
-        } else {
-            promise.reject("Erro ao inicializar SDK", error.toString())
+        try {
+            
+            val error = sgfplib.Init(SGFDxDeviceName.SG_DEV_AUTO.toLong())
+            if (error == 0L) {
+                promise.resolve("SDK Inicializado")
+            } else {
+                promise.reject("INIT_ERROR", "Código: $error")
+            }
+        } catch (e: Exception) {
+            promise.reject("INIT_EXCEPTION", e.message)
         }
     }
 
     @ReactMethod
     fun captureFingerprint(promise: Promise) {
-        val buffer = ByteArray(260 * 300) 
-        val error = sgfplib.GetImage(buffer)
-        if (error == 0L) {
-            promise.resolve("Imagem capturada com sucesso")
-        } else {
-            promise.reject("Erro ao capturar digital", error.toString())
-        }
-    }
-
-    @ReactMethod
-    fun closeDevice(promise: Promise) {
-        val error = sgfplib.Close()
-        if (error == 0L) {
-            promise.resolve("Dispositivo fechado")
-        } else {
-            promise.reject("Erro ao fechar dispositivo", error.toString())
+        try {
+            val buffer = ByteArray(300 * 400) 
+            val error = sgfplib.GetImage(buffer)
+            if (error == 0L) {
+                promise.resolve(buffer)
+            } else {
+                promise.reject("CAPTURE_ERROR", "Código: $error")
+            }
+        } catch (e: Exception) {
+            promise.reject("CAPTURE_EXCEPTION", e.message)
         }
     }
 }
