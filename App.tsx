@@ -25,10 +25,20 @@ const App = () => {
     }
   };
 
+  const listDevices = async () => {
+    FingerprintModule.listarDispositivosUSB()
+  .then(devices => setStatus(JSON.stringify(devices)))
+  .catch(error => console.error('Erro:', error));
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Leitor Biométrico</Text>
-      <Text style={styles.status}>{status}</Text>
+      <Text selectable style={styles.status}>{status}</Text>
+
+      <TouchableOpacity style={styles.button} onPress={listDevices}>
+        <Text style={styles.buttonText}>Listar Dispositivos </Text>
+      </TouchableOpacity>
 
       <TouchableOpacity style={styles.button} onPress={handleInitialize}>
         <Text style={styles.buttonText}>Inicializar SDK</Text>
